@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Dashboard - EcoCom</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Rider Dashboard</h1>
+            <nav>
+                <button id="logout-btn" class="btn" aria-label="Logout">Logout</button>
+            </nav>
+        </header>
+
+        <main>
+            <section class="profile-section" aria-labelledby="profile-heading">
+                <h2 id="profile-heading">Rider Profile</h2>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <label for="current-location">Current Location:</label>
+                        <span id="current-location" aria-live="polite">N/A</span>
+                    </div>
+                    <div class="profile-item">
+                        <label for="rider-rating">Rider Rating:</label>
+                        <span id="rider-rating" aria-live="polite">0.0</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="search-rides-section" aria-labelledby="search-rides-heading">
+                <h2 id="search-rides-heading">Search Rides</h2>
+                <form id="search-rides-form" aria-label="Search for rides">
+                    <div class="form-group">
+                        <label for="pickup-location">Pickup Location:</label>
+                        <input type="text" id="pickup-location" name="pickup-location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pickup-time">Pickup Time:</label>
+                        <input type="time" id="pickup-time" name="pickup-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="car-make">Car Make:</label>
+                        <input type="text" id="car-make" name="car-make">
+                    </div>
+                    <button type="button" id="search-rides-btn" class="btn">Search Rides</button>
+                </form>
+
+                <div id="rides-list" class="rides-container" aria-live="polite">
+                    <!-- Search results will be dynamically populated here -->
+                </div>
+            </section>
+
+            <section class="bookings-section" aria-labelledby="bookings-heading">
+                <h2 id="bookings-heading">My Bookings</h2>
+                <div id="bookings-list" aria-live="polite">
+                    <!-- Current bookings will be dynamically populated here -->
+                </div>
+                <button id="cancel-booking-btn" class="btn btn-danger">Cancel Booking</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 EcoCom Ride Sharing</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/rider-dashboard.js"></script>
+</body>
+</html>

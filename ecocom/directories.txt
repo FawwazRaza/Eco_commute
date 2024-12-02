@@ -1,0 +1,45 @@
+ECOCOM/
+│
+├── backend/                         # Main backend directory
+│   ├── __pycache__/                 # Python bytecode cache (auto-generated)
+│   ├── migrations/                  # Database migrations
+│   ├── __init__.py                  # Package initializer for backend
+│   ├── admin.py                     # Admin configuration
+│   ├── apps.py                      # App configuration
+│   ├── database.py                  # Database-related functions and classes
+│   ├── frontend.py                  # Backend views related to frontend (optional)
+│   ├── models.py                    # ORM models for the database
+│   ├── tests.py                     # Unit tests for the backend
+│   ├── views.py                     # Views that handle backend logic
+|── eco/                         # Sub-directory for additional backend components (optional)
+│   ├── __init__.py              # Initialize eco module
+│   ├── asgi.py                  # ASGI configuration
+│   ├── settings.py              # Project settings file
+│   ├── urls.py                  # URL routing for backend views
+│   └── wsgi.py                  # WSGI configuration
+│
+├── frontend/                        # Frontend directory
+│   ├── static/                      # Static files like CSS and JS
+│   │   ├── CSS/                     # CSS stylesheets
+│   │   │   ├── dashboard.css        # Dashboard styles
+│   │   │   ├── login.css            # Login page styles
+│   │   │   ├── register.css         # Register page styles
+│   │   │   └── styles.css           # General styles
+│   │   ├── js/                      # JavaScript files
+│   │   │   ├── driver-dashboard.js  # Driver dashboard JS
+│   │   │   ├── login.js             # Login page JS
+│   │   │   ├── register.js          # Register page JS
+│   │   │   ├── rider-dashboard.js   # Rider dashboard JS
+│   |── templates/               # HTML templates for views
+│   │   ├── driver-dashboard.html# Driver dashboard page template
+│   │   ├── index.html           # Home page template
+│   │   ├── login.html           # Login page template
+│   │   ├── register.html        # Register page template
+│   │   ├── rider-dashboard.html # Rider dashboard page template
+│   │   └── update_profile.html  # Update profile page template
+│
+├── venv/                            # Virtual environment folder
+├── db.sqlite3                       # SQLite database file (can be replaced with other DB)
+├── directories.txt                  # List of directories used in the project (optional)
+├── manage.py                        # Django project management script
+└── requirements.txt                 # Python dependencies (not listed but should be included)

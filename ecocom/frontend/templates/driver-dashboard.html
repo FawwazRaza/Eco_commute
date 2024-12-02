@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard - EcoCom</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        /* Additional styles for rating stars */
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .rating-stars input {
+            display: none;
+        }
+        .rating-stars label {
+            font-size: 2em;
+            color: #ddd;
+            cursor: pointer;
+        }
+        .rating-stars input:checked ~ label,
+        .rating-stars input:hover ~ label {
+            color: #ffc107;
+        }
+        .rating-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .rating-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Driver Dashboard</h1>
+            <button id="logout-btn" class="btn">Logout</button>
+        </header>
+
+        <section class="profile-section">
+            <h2>Driver Profile</h2>
+            <div class="profile-grid">
+                <div class="profile-item">
+                    <!-- <label>Name:</label> -->
+                    <span id="profile-name">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <!-- <label>Email:</label> -->
+                    <span id="profile-email">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <!-- <label>Phone:</label> -->
+                    <span id="profile-phone">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <!-- <label>Car Model:</label> -->
+                    <span id="profile-car-model">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <!-- <label>Car License:</label> -->
+                    <span id="profile-car-license">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <!-- <label>Seats Available:</label> -->
+                    <span id="profile-seats">N/A</span>
+                </div>
+                <div class="profile-item full-width">
+                    <!-- <label>Route:</label> -->
+                    <span id="profile-route">N/A</span>
+                </div>
+                <div class="profile-item full-width">
+                    <!-- <label>Schedule:</label> -->
+                    <span id="profile-schedule">N/A</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="bookings-section">
+            <h2>Current Bookings</h2>
+            <div id="bookings-list">
+                <!-- Bookings will be dynamically populated here -->
+            </div>
+        </section>
+
+        <section class="ratings-section">
+            <h2>Rider Ratings</h2>
+            <div id="rider-ratings-list">
+                <!-- Rider rating options will be dynamically populated here -->
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/js/driver-dashboard.js"></script>
+</body>
+</html>
