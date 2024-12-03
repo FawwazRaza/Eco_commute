@@ -221,23 +221,52 @@ class DriverDatabase(DriverDatabaseInterface):
         except Driver.DoesNotExist:
             return False
 
-    def getBookings(self, username):
-            try:
-                # Fetch the Person object associated with the given username
-                person = Person.objects.get(username=username)
+    # def getBookings(self, username):
+    #         try:
+    #             # Fetch the Person object associated with the given username
+    #             person = Person.objects.get(username=username)
                 
-                # Fetch the Driver object associated with the Person
-                driver = Driver.objects.get(person=person)
+    #             # Fetch the Driver object associated with the Person
+    #             driver = Driver.objects.get(person=person)
                 
-                # Fetch all bookings where the driver is associated
-                bookings = Booking.objects.filter(driver=driver)
+    #             # Fetch all bookings where the driver is associated
+    #             bookings = Booking.objects.filter(driver=driver)
                 
-                # Return the Booking objects
-                return bookings
-            except Person.DoesNotExist:
-                return None  # Handle case where Person does not exist
-            except Driver.DoesNotExist:
-                return None  # Handle case where Driver does not exist
+    #             # Return the Booking objects
+    #             return bookings
+    #         except Person.DoesNotExist:
+    #             return None  # Handle case where Person does not exist
+    #         except Driver.DoesNotExist:
+    #             return None  # Handle case where Driver does not exist
+    def getBookings(self, username): #returns Riders Data
+        try:
+            # Fetch the Person object associated with the given username
+            person = Person.objects.get(username=username)
+            
+            # Fetch the Driver object associated with the Person
+            driver = Driver.objects.get(person=person)
+            
+            # Fetch all bookings where the driver is associated
+            bookings = Booking.objects.filter(driver=driver)
+            riders_data = []
+            for booking in bookings:
+                riders = booking.riders.all()
+                for rider in riders:
+
+                    riders_data.append(  {
+                    'rider_username': rider.person.username,
+                    'rider_name': rider.person.name,
+                    'rider_phone': rider.person.phone,
+                    'rider_location':rider.pickup_location
+                    })
+        
+            
+            # Return the Booking objects
+            return riders_data
+        except Person.DoesNotExist:
+            return None  # Handle case where Person does not exist
+        except Driver.DoesNotExist:
+            return None  # Handle case where Driver does not exist
 
 class RiderDatabase(RiderDatabaseInterface):
     
@@ -348,18 +377,38 @@ class RiderDatabase(RiderDatabaseInterface):
         except ObjectDoesNotExist:
             return False  # User not found
 
+    # def getBookings(self, username):
+    #     try:
+    #         person = Person.objects.get(username=username)
+    #         print(person)
+    #         rider = Rider.objects.get(person=person)
+    #         print(rider)
+    #         bookings = Booking.objects.filter(riders=rider)
+    #         print(bookings)
+    #         return bookings  # Return Booking objects
+    #     except ObjectDoesNotExist:
+    #         return None  # If user is not found or no bookings, return None
     def getBookings(self, username):
         try:
             person = Person.objects.get(username=username)
-            print(person)
+            
             rider = Rider.objects.get(person=person)
-            print(rider)
+            
             bookings = Booking.objects.filter(riders=rider)
-            print(bookings)
-            return bookings  # Return Booking objects
+            
+            if bookings:
+                driver = bookings[0].driver
+                driver_data = {
+                'driver_username': driver.person.username,
+                'driver_name':driver.person.name,
+                'driver_phone':driver.person.phone,
+                'car':driver.car_model,
+                'route':driver.route
+                }
+                return driver_data  # Return Booking objects
+            return None
         except ObjectDoesNotExist:
-            return None  # If user is not found or no bookings, return None
-
+            return None  # If user is not found or no bookings, return None
     # Get Rider Pickup Location
     def getLocation(self, username):
         try:

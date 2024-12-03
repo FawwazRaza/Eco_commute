@@ -85,8 +85,8 @@ function updateProfileUI(profile) {
 
     setElementText('profile-schedule', profile.schedule);
 }
-
-// // Function to fetch driver bookings
+// Function to fetch driver bookings with detailed information
+// Function to fetch driver bookings with detailed information
 // async function fetchDriverBookings() {
 //     try {
 //         const username = localStorage.getItem('username');
@@ -105,7 +105,6 @@ function updateProfileUI(profile) {
 //             }
 //         });
 
-//         // Check if the response is ok
 //         if (!response.ok) {
 //             throw new Error(`HTTP error! status: ${response.status}`);
 //         }
@@ -113,55 +112,35 @@ function updateProfileUI(profile) {
 //         const data = await response.json();
 //         console.log('Driver Bookings Data:', data);
 
-//         // Get the bookings list container
 //         const bookingsList = document.getElementById('bookings-list');
 //         bookingsList.innerHTML = ''; // Clear previous results
 
-//         // Check if bookings exist and are successful
-//         if (data.success && data.bookings && data.bookings.length > 0) {
-//             // Iterate through bookings and create elements
-//             for (const booking of data.bookings) {
-//                 // Fetch additional rider details
-//                 const riderDetailsResponse = await fetchRiderDetails(booking.rider_username);
-                
+//         if (data.success && Array.isArray(data.bookings) && data.bookings.length > 0) {
+//             // Iterate through bookings and create UI elements
+//             data.bookings.forEach((booking, index) => {
 //                 const bookingElement = document.createElement('div');
 //                 bookingElement.classList.add('booking-item');
 //                 bookingElement.innerHTML = `
 //                     <div class="booking-details">
-//                         <h3>Booking with ${booking.rider_name}</h3>
-//                         <div class="rider-info">
-//                             <h4>Rider Details</h4>
-//                             <p><strong>Username:</strong> ${booking.rider_username}</p>
-//                             <p><strong>Name:</strong> ${riderDetailsResponse.profile.name || 'N/A'}</p>
-//                             <p><strong>Email:</strong> ${riderDetailsResponse.profile.email || 'N/A'}</p>
-//                             <p><strong>Phone:</strong> ${riderDetailsResponse.profile.phone || 'N/A'}</p>
-//                             <p><strong>Pickup Location:</strong> ${riderDetailsResponse.profile.pickup_location || 'N/A'}</p>
-//                         </div>
-//                         <div class="booking-meta">
-//                             <p><strong>Booking Time:</strong> ${booking.created_at}</p>
-//                             <div class="booking-actions">
-//                                 <button onclick="cancelBooking(${booking.id})">Cancel Booking</button>
-//                                 <button onclick="rateRider('${booking.rider_username}')">Rate Rider</button>
-//                             </div>
-//                         </div>
+//                         <h3>Rider Details (Booking #${index + 1})</h3>
+//                         <p><strong>Username:</strong> ${booking.rider_username || 'N/A'}</p>
+//                         <p><strong>Name:</strong> ${booking.rider_name || 'N/A'}</p>
+//                         <p><strong>Phone:</strong> ${booking.rider_phone || 'N/A'}</p>
+//                         <p><strong>Pickup Location:</strong> ${booking.rider_location || 'N/A'}</p>
 //                     </div>
 //                 `;
 //                 bookingsList.appendChild(bookingElement);
-//             }
+//             });
 //         } else {
-//             // Display message if no bookings found
 //             bookingsList.innerHTML = '<p>No bookings found</p>';
 //         }
 //     } catch (error) {
 //         console.error('Fetch driver bookings error:', error);
-        
-//         // Display error message in bookings list
 //         const bookingsList = document.getElementById('bookings-list');
-//         bookingsList.innerHTML = '<p>Error fetching bookings</p>';
+//         bookingsList.innerHTML = `<p>Error fetching bookings: ${error.message}</p>`;
 //     }
 // }
 
-// Function to fetch driver bookings with detailed rider information
 async function fetchDriverBookings() {
     try {
         const username = localStorage.getItem('username');
@@ -180,7 +159,6 @@ async function fetchDriverBookings() {
             }
         });
 
-        // Check if the response is ok
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -188,50 +166,36 @@ async function fetchDriverBookings() {
         const data = await response.json();
         console.log('Driver Bookings Data:', data);
 
-        // Get the bookings list container
         const bookingsList = document.getElementById('bookings-list');
         bookingsList.innerHTML = ''; // Clear previous results
 
-        // Check if bookings exist and are successful
-        if (data.success && data.bookings && data.bookings.length > 0) {
-            // Iterate through bookings and create elements
-            data.bookings.forEach(booking => {
-                const bookingElement = document.createElement('div');
-                bookingElement.classList.add('booking-item');
-                bookingElement.innerHTML = `
+        if (data.success && Array.isArray(data.bookings) && data.bookings.length > 0) {
+            data.bookings.forEach((booking, index) => {
+                const bookingCard = document.createElement('div');
+                bookingCard.classList.add('booking-card');
+                bookingCard.innerHTML = `
+                    <div class="booking-header">
+                        <h3>Booking #${index + 1}</h3>
+                    </div>
                     <div class="booking-details">
-                        <h3>Booking with ${booking.rider_name}</h3>
-                        <div class="rider-info">
-                            <h4>Rider Details</h4>
-                            <p><strong>Username:</strong> ${booking.rider_username}</p>
-                            <p><strong>Name:</strong> ${booking.rider_details.name}</p>
-                            <p><strong>Email:</strong> ${booking.rider_details.email}</p>
-                            <p><strong>Phone:</strong> ${booking.rider_details.phone}</p>
-                            <p><strong>Pickup Location:</strong> ${booking.rider_details.pickup_location}</p>
-                        </div>
-                        <div class="booking-meta">
-                            <p><strong>Booking Time:</strong> ${booking.created_at}</p>
-                            <div class="booking-actions">
-                                <button onclick="cancelBooking(${booking.id})">Cancel Booking</button>
-                                <button onclick="rateRider('${booking.rider_username}')">Rate Rider</button>
-                            </div>
-                        </div>
+                        <p><strong>Rider Username:</strong> ${booking.rider_username || 'N/A'}</p>
+                        <p><strong>Name:</strong> ${booking.rider_name || 'N/A'}</p>
+                        <p><strong>Phone:</strong> ${booking.rider_phone || 'N/A'}</p>
+                        <p><strong>Pickup Location:</strong> ${booking.rider_location || 'N/A'}</p>
                     </div>
                 `;
-                bookingsList.appendChild(bookingElement);
+                bookingsList.appendChild(bookingCard);
             });
         } else {
-            // Display message if no bookings found
             bookingsList.innerHTML = '<p>No bookings found</p>';
         }
     } catch (error) {
         console.error('Fetch driver bookings error:', error);
-        
-        // Display error message in bookings list
         const bookingsList = document.getElementById('bookings-list');
-        bookingsList.innerHTML = '<p>Error fetching bookings</p>';
+        bookingsList.innerHTML = `<p>Error fetching bookings: ${error.message}</p>`;
     }
 }
+
 // Function to fetch rider details
 async function fetchRiderDetails(username) {
     try {
