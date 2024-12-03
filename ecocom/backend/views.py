@@ -664,32 +664,38 @@ def rider_cancel_booking_view(request):
             'message': str(e)
         })
 
-def rider_search_rides_view(request):
-    """
-    Search for available rides
-    """
+@csrf_exempt
+@require_http_methods(["GET"])
+def search_rides_view(request):
     try:
-        pickup_location = request.GET.get('pickup_location')
-        pickup_time = request.GET.get('pickup_time')
-        car_make = request.GET.get('car_make')
+        pickup_location = request.GET.get('pickup_location', '').lower()
+        car_make = request.GET.get('car_make', '').lower()
         
-        rider_db = RiderDatabase()
+        # Fetch drivers
+        drivers = Driver.objects.filter(seats_available__gt=0)
+        if pickup_location:
+            drivers = drivers.filter(route__icontains=pickup_location)
+        if car_make:
+            drivers = drivers.filter(car_model__icontains=car_make)
         
-        rides = rider_db.searchRides(
-            pickup_location=pickup_location, 
-            picktime=pickup_time, 
-            carMake=car_make
-        )
+        # Prepare response data
+        rides_list = []
+        for driver in drivers:
+            ratings = Rating.objects.filter(to_person=driver.person)
+            avg_rating = ratings.aggregate(Avg('score'))['score__avg'] if ratings.exists() else None
+            rides_list.append({
+                'username': driver.person.username,
+                'name': driver.person.name,
+                'car_model': driver.car_model,
+                'seats_available': driver.seats_available,
+                'route': driver.route,
+                'timing': driver.timing,
+                'average_rating': round(avg_rating, 2) if avg_rating else None,
+            })
         
-        return JsonResponse({
-            'success': True,
-            'rides': rides
-        })
+        return JsonResponse({'success': True, 'rides': rides_list})
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        })
+        return JsonResponse({'success': False, 'message': str(e)})
 
 def rider_location_view(request):
     """

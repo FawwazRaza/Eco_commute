@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -48,15 +48,16 @@
                     <button type="button" id="search-rides-btn" class="btn">Search Rides</button>
                 </form>
 
-                <div id="rides-list" class="rides-container" aria-live="polite">
-                    <!-- Search results will be dynamically populated here -->
-                </div>
+                <section id="rides-list" class="rides-container" aria-live="polite">
+                    <!-- 
+                </section>
+                
             </section>
 
             <section class="bookings-section" aria-labelledby="bookings-heading">
                 <h2 id="bookings-heading">My Bookings</h2>
                 <div id="bookings-list" aria-live="polite">
-                    <!-- Current bookings will be dynamically populated here -->
+                    <!--
                 </div>
                 <button id="cancel-booking-btn" class="btn btn-danger">Cancel Booking</button>
             </section>
@@ -65,6 +66,95 @@
         <footer>
             <p>&copy; 2024 EcoCom Ride Sharing</p>
         </footer>
+    </div>
+
+    <script src="/static/js/rider-dashboard.js"></script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Dashboard - EcoCom</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Rider Dashboard</h1>
+            <button id="logout-btn" class="btn">Logout</button>
+        </header>
+
+        <section class="profile-section">
+            <h2>Rider Profile</h2>
+            <div class="profile-grid">
+                <div class="profile-item">
+                    <label>Username:</label>
+                    <span id="rider-username">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <label>Name:</label>
+                    <span id="rider-name">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <label>Email:</label>
+                    <span id="rider-email">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <label>Phone:</label>
+                    <span id="rider-phone">N/A</span>
+                </div>
+                <div class="profile-item full-width">
+                    <label>Pickup Location:</label>
+                    <span id="rider-pickup-location">N/A</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="location-rating-section">
+            <div class="profile-grid">
+                <div class="profile-item">
+                    <label>Current Location:</label>
+                    <span id="current-location">N/A</span>
+                </div>
+                <div class="profile-item">
+                    <label>Rider Rating:</label>
+                    <span id="rider-rating">0.0</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="search-rides-section">
+            <h2>Search Rides</h2>
+            <form id="search-rides-form">
+                <div class="form-group">
+                    <label for="pickup-location">Pickup Location:</label>
+                    <input type="text" id="pickup-location" required>
+                </div>
+                <div class="form-group">
+                    <label for="pickup-time">Pickup Time:</label>
+                    <input type="time" id="pickup-time">
+                </div>
+                <div class="form-group">
+                    <label for="car-make">Car Make:</label>
+                    <input type="text" id="car-make">
+                </div>
+                <button type="button" id="search-rides-btn" class="btn">Search Rides</button>
+            </form>
+
+            <div id="rides-list" class="rides-container">
+                <!-- Search results will be dynamically populated here -->
+            </div>
+        </section>
+
+        <section class="bookings-section">
+            <h2>My Bookings</h2>
+            <div id="bookings-list">
+                <!-- Current bookings will be dynamically populated here -->
+            </div>
+            <button id="cancel-booking-btn" class="btn btn-danger">Cancel Booking</button>
+        </section>
     </div>
 
     <script src="/static/js/rider-dashboard.js"></script>

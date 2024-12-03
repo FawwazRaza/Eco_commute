@@ -380,65 +380,46 @@ class RiderDatabase(RiderDatabaseInterface):
         except ObjectDoesNotExist:
             return False  # User not found
            
-    def searchRides(self, pickup_location=None, picktime = None, carMake = None):
-
+    def searchRides(self, pickup_location=None, carMake=None):
         try:
-            # Get available drivers based on filters
-            drivers = Driver.objects.all()
-
-            drivers = drivers.filter(seats_available__gt=0)
-       
+            # Start with all drivers who have available seats
+            drivers = Driver.objects.filter(seats_available__gt=0)
             
-            # Apply filter on pickup_location (must match drivers' route
+            # Filter by pickup location (case-insensitive)
             if pickup_location:
-                pickup_location=pickup_location.lower()
-                filtered = []
-                for driver in drivers:
-                    if pickup_location in driver.route.lower():
-                        filtered.append(driver)
-                drivers = filtered  
-
+                drivers = drivers.filter(route__icontains=pickup_location.lower())
             
-            if picktime:
-                filtered = []
-                for driver in drivers:
-                    if picktime == driver.timing:
-                        filtered.append(driver)
-                drivers = filtered  
-
+            # Filter by car make (case-insensitive)
             if carMake:
-                filtered = []
-                for driver in drivers:
-                    if carMake.lower() == driver.car_model.lower():
-                        filtered.append(driver)
-                drivers = filtered 
-
-            available_drivers = []    
-
+                drivers = drivers.filter(car_model__icontains=carMake.lower())
+            
+            available_drivers = []
+            
             for driver in drivers:
-                # Fetch ratings for the driver (from the rider's perspective)
-                ratings = Rating.objects.filter(to_person=driver.person)  # Get ratings for the current driver
+                # Fetch and calculate average rating
+                ratings = Rating.objects.filter(to_person=driver.person)
                 average_rating = ratings.aggregate(Avg('score'))['score__avg'] if ratings.exists() else None
                 
-
-            for driver in drivers:
+                # Prepare driver information dictionary
                 driver_info = {
                     'username': driver.person.username,
                     'name': driver.person.name,
                     'phone': driver.person.phone,
                     'car_model': driver.car_model,
                     'seats_available': driver.seats_available,
-                    'timing': driver.timing,  # Complete schedule of the driver
-                    'route': driver.route,  # Complete route of the driver
-                    'average_rating': average_rating,  # Average rating of the driver                    
+                    'timing': driver.timing,
+                    'route': driver.route,
+                    'average_rating': round(average_rating, 2) if average_rating is not None else None
                 }
+                
                 available_drivers.append(driver_info)
             
-            return available_drivers  # Return list of available drivers
-        except Exception as e:
-            print("Exception")
-            return []  # Return empty list if any error occurs
+            return available_drivers
         
+        except Exception as e:
+            print(f"Search Rides Error: {str(e)}")
+            return []
+            
     def storeRating(self, from_username, to_username, score, feedback=""):
     
         try:

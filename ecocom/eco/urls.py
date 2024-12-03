@@ -32,9 +32,9 @@ from backend.views import (
     driver_cancel_booking_view,
     driver_rate_rider_view,
     rider_cancel_booking_view,
-    rider_search_rides_view,
     rider_location_view,
-    rider_rating_view
+    rider_rating_view,
+    search_rides_view
 )
 from backend.database import DriverDatabase, RiderDatabase 
 urlpatterns = [
@@ -58,6 +58,7 @@ urlpatterns = [
     path('driver/dashboard/', TemplateView.as_view(template_name='driver-dashboard.html')),
     path('rider/dashboard/', TemplateView.as_view(template_name='rider-dashboard.html')),
 
+    path('api/rider/search-rides/', search_rides_view, name='search_rides'),
 
   # Driver Dashboard Paths
     path('driver/dashboard/', TemplateView.as_view(template_name='driver-dashboard.html'), name='driver_dashboard'),
@@ -75,7 +76,6 @@ urlpatterns = [
     # Rider Booking URLs
     path('api/rider/bookings/', rider_bookings_view, name='rider_bookings'),
     path('api/rider/cancel-booking/', rider_cancel_booking_view, name='rider_cancel_booking'),
-    path('api/rider/search-rides/', rider_search_rides_view, name='rider_search_rides'),
     path('api/rider/location/', rider_location_view, name='rider_location'),
     path('api/rider/rating/', rider_rating_view, name='rider_rating'),
 ]

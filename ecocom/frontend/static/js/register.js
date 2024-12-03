@@ -1,6 +1,7 @@
 // Ride Sharing Application Frontend JavaScript
 
 // Utility Functions
+// Utility function to get a cookie value by name
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -15,6 +16,7 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
 
 // Form Interactions
 function toggleDriverFields() {
