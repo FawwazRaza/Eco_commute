@@ -443,6 +443,7 @@ class RiderDatabase(RiderDatabaseInterface):
     #         return []
             
     def searchRides(self, pickup_location=None, carMake = None, picktime = None):
+
         try:
             # Get available drivers based on filters
             drivers = Driver.objects.all()
