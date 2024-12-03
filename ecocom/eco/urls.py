@@ -69,7 +69,6 @@ urlpatterns = [
     path('api/driver/cancel-booking/', cancel_booking_view, name='cancel_booking'),
     path('api/driver/update-profile/', update_driver_profile_view, name='update_driver_profile'),
 
-   path('api/driver/bookings/', driver_bookings_view, name='driver_bookings'),
     path('api/driver/cancel-booking/', driver_cancel_booking_view, name='driver_cancel_booking'),
     path('api/driver/rate-rider/', driver_rate_rider_view, name='driver_rate_rider'),
     

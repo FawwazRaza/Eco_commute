@@ -423,53 +423,154 @@ def driver_profile_view(request):
             'message': str(e)
         })
     
+# def driver_bookings_view(request):
+#     """
+#     Fetch driver's current bookings with multiple identifier support
+#     """
+#     try:
+#         # Try to get username, if not present try name
+#         username = request.GET.get('username')
+#         name = request.GET.get('name')
+        
+#         # Use username if available, otherwise use name
+#         identifier = username or name
+        
+#         if not identifier:
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': 'Username or name is required'
+#             }, status=400)
+        
+#         # Initialize DriverDatabase
+#         driver_db = DriverDatabase()
+        
+#         # Fetch bookings using flexible identifier
+#         bookings = driver_db.getBookings(username)
+        
+#         # Convert bookings to a list of dictionaries
+#         booking_list = []
+#         for booking in bookings:
+#             # Ensure we have at least one rider
+#             if booking.riders.exists():
+#                 rider = booking.riders.first()
+#                 booking_list.append({
+#                     'id': booking.id,
+#                     'rider_name': rider.person.name,
+#                     'rider_username': rider.person.username,
+#                     'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
+#                 })
+        
+#         # Return bookings or indicate no bookings found
+#         return JsonResponse({
+#             'success': True,
+#             'bookings': booking_list
+#         })
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False,
+#             'message': str(e)
+#         })
+
+# def driver_bookings_view(request):
+#     """
+#     Fetch driver's current bookings with multiple identifier support
+#     """
+#     try:
+#         # Try to get username, if not present try name
+#         username = request.GET.get('username')
+#         name = request.GET.get('name')
+        
+#         # Use username if available, otherwise use name
+#         identifier = username or name
+        
+#         if not identifier:
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': 'Username or name is required'
+#             }, status=400)
+        
+#         # Initialize DriverDatabase
+#         driver_db = DriverDatabase()
+        
+#         # Fetch bookings using flexible identifier
+#         bookings = driver_db.getBookings(identifier)  # Changed from 'username' to 'identifier'
+        
+#         # Convert QuerySet to a list of dictionaries
+#         booking_list = []
+#         for booking in bookings:  # Directly iterate over QuerySet
+#             # Ensure we have at least one rider
+#             if booking.riders.exists():
+#                 rider = booking.riders.first()
+#                 booking_list.append({
+#                     'id': booking.id,
+#                     'rider_name': rider.person.name,
+#                     'rider_username': rider.person.username,
+#                     'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
+#                 })
+        
+#         # Return bookings or indicate no bookings found
+#         return JsonResponse({
+#             'success': True,
+#             'bookings': booking_list
+#         })
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False,
+#             'message': str(e)
+#         }, status=500)
+
+@csrf_protect
+@require_http_methods(["GET"])
 def driver_bookings_view(request):
     """
-    Fetch driver's current bookings with multiple identifier support
+    Fetch driver's current bookings with detailed rider information
     """
     try:
-        # Try to get username, if not present try name
         username = request.GET.get('username')
-        name = request.GET.get('name')
         
-        # Use username if available, otherwise use name
-        identifier = username or name
-        
-        if not identifier:
+        if not username:
             return JsonResponse({
                 'success': False,
-                'message': 'Username or name is required'
+                'message': 'Username is required'
             }, status=400)
         
         # Initialize DriverDatabase
         driver_db = DriverDatabase()
         
-        # Fetch bookings using flexible identifier
-        bookings = driver_db.getBookings(identifier)
+        # Fetch bookings using the getBookings method
+        bookings = driver_db.getBookings(username)
         
-        # Convert bookings to a list of dictionaries
+        # Convert bookings to a list of dictionaries with detailed information
         booking_list = []
         for booking in bookings:
-            # Ensure we have at least one rider
-            if booking.riders.exists():
-                rider = booking.riders.first()
-                booking_list.append({
-                    'id': booking.id,
-                    'rider_name': rider.person.name,
-                    'rider_username': rider.person.username,
-                    'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-                })
+            # Fetch rider details for each booking
+            rider = booking.riders.first()  # Assuming one rider per booking
+            
+            booking_info = {
+                'id': booking.id,
+                'driver_username': booking.driver.person.username,
+                'driver_name': booking.driver.person.name,
+                'rider_username': rider.person.username,
+                'rider_name': rider.person.name,
+                'rider_email': rider.person.email,
+                'rider_phone': rider.person.phone,
+                'rider_pickup_location': rider.pickup_location,
+                'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            booking_list.append(booking_info)
         
-        # Return bookings or indicate no bookings found
         return JsonResponse({
             'success': True,
             'bookings': booking_list
         })
+    
     except Exception as e:
         return JsonResponse({
             'success': False,
             'message': str(e)
-        })
+        }, status=500)
+
+
 def cancel_booking_view(request):
     """
     Cancel a specific booking
@@ -547,7 +648,7 @@ def driver_bookings_view(request):
         driver_db = DriverDatabase()
         
         # Assuming you have a method to get driver bookings
-        bookings = driver_db.getDriverBookings(username)
+        bookings = driver_db.getBookings(username)
         
         return JsonResponse({
             'success': True,
