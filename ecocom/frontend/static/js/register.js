@@ -1,6 +1,7 @@
 
 function getCookie(name) {
     let cookieValue = null;
+    console.log('ok 100');
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         console.log('ok 200');
@@ -9,7 +10,6 @@ function getCookie(name) {
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
-                console.log('cookieValue:', cookieValue);
             }
         }
     }
