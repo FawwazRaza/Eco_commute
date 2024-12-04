@@ -431,35 +431,6 @@ def driver_bookings_view(request):
             'message': str(e)
         }, status=500)
 
-def cancel_booking_view(request):
-    """
-    Cancel a specific booking
-    """
-    try:
-        # Parse booking ID from request
-        booking_id = request.POST.get('booking_id')
-        
-        # Initialize DriverDatabase
-        driver_db = DriverDatabase()
-        
-        # Delete booking
-        result = driver_db.deleteBooking(booking_id)
-        
-        if result:
-            return JsonResponse({
-                'success': True,
-                'message': 'Booking cancelled successfully'
-            })
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Failed to cancel booking'
-            })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        })
 
 def update_driver_profile_view(request):
     """
