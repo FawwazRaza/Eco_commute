@@ -6,6 +6,7 @@ function getCookie(name) {
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                console.log('Cookie:', cookie);
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }

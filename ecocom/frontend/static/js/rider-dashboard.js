@@ -1,6 +1,7 @@
 // Utility function to get CSRF token
 function getCookie(name) {
     let cookieValue = null;
+    console.log('yes');
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {

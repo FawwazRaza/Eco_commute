@@ -2,7 +2,7 @@ import json
 import logging
 import re
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.views.decorators.csrf import csrf_protect, csrf_protect
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -88,7 +88,7 @@ def logout_view(request):
             'message': str(e)
         })
     
-@csrf_exempt
+@csrf_protect
 def register_view(request):
     if request.method == 'POST':
         try:
@@ -304,7 +304,7 @@ def book_ride_view(request):
         })
 
 
-@csrf_exempt
+@csrf_protect
 @require_http_methods(["GET"])
 def search_rides_view(request):
     try:
@@ -525,7 +525,7 @@ def driver_rate_rider_view(request):
 
 
 
-@csrf_exempt
+@csrf_protect
 @require_http_methods(["GET"])
 def search_rides_view(request):
     try:
@@ -606,7 +606,8 @@ def rider_rating_view(request):
             'message': str(e)
         })
 
-
+@csrf_protect
+@require_http_methods(["POST"])
 def driver_cancel_booking_view(request):
     try:
         print(request.body)
@@ -642,7 +643,7 @@ def driver_cancel_booking_view(request):
             'message': 'An unexpected error occurred'
         }, status=500)
 
-@csrf_exempt
+@csrf_protect
 @require_http_methods(["POST"])
 def rider_cancel_booking_view(request):
     try:
