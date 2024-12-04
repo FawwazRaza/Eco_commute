@@ -101,25 +101,28 @@ async function fetchMyBookings() {
         const bookingsList = document.getElementById('bookings-list');
         bookingsList.innerHTML = ''; // Clear previous results only once
 
-        // Modify the condition to check the new data structure
-        if (data.success && data.bookings) {
-            const booking = data.bookings; // Since it's a single object, not an array
-            const bookingElement = document.createElement('div');
-            bookingElement.classList.add('booking-item', 'card', 'mb-3');
-            bookingElement.innerHTML = `
-                <div class="card-header">
-                    <h3>Booking with ${booking.driver_name}</h3>
-                </div>
-                <div class="card-body">
-                    <p><strong>Driver Username:</strong> ${booking.driver_username}</p>
-                    <p><strong>Driver Phone:</strong> ${booking.driver_phone}</p>
-                    <p><strong>Car:</strong> ${booking.car}</p>
-                    <p><strong>Route:</strong> ${formatRoute(booking.route)}</p>
-                    <button class="btn btn-danger" onclick="cancelBooking('${booking.driver_username}')">Cancel Booking</button>
-                </div>
-            `;
-            
-            bookingsList.appendChild(bookingElement);
+        // Check if data has success and bookings array
+        if (data.success && data.bookings && data.bookings.length > 0) {
+            // Iterate through the bookings array
+            data.bookings.forEach(booking => {
+                const bookingElement = document.createElement('div');
+                bookingElement.classList.add('booking-item', 'card', 'mb-3');
+                bookingElement.innerHTML = `
+                    <div class="card-header">
+                        <h3>Booking with ${booking.driver_name || 'Unknown Driver'}</h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Driver Username:</strong> ${booking.driver_username || 'N/A'}</p>
+                        <p><strong>Driver Phone:</strong> ${booking.driver_phone || 'N/A'}</p>
+                        <p><strong>Car:</strong> ${booking.car_model || 'N/A'}</p>
+                        <p><strong>Route:</strong> ${formatRoute(booking.route)}</p>
+                        <p><strong>Booking ID:</strong> ${booking.id || 'N/A'}</p>
+                        <button class="btn btn-danger" onclick="openCancelBookingModal('${booking.driver_username}')">Cancel Booking</button>
+                    </div>
+                `;
+                
+                bookingsList.appendChild(bookingElement);
+            });
         } else {
             bookingsList.innerHTML = `
                 <div class="alert alert-info" role="alert">
@@ -140,6 +143,7 @@ async function fetchMyBookings() {
 }
 
 // Utility function to format route (assuming route is an array)
+
 function formatRoute(route) {
     // If route is an array, join its elements, otherwise return a default message
     return route && route.length > 0 ? route.join(' → ') : 'No route information';
@@ -237,7 +241,6 @@ async function bookRide(driverUsername) {
     }
 }
 
-
 // Function to open cancel booking modal
 function openCancelBookingModal() {
     const modalContainer = document.getElementById('modal-container');
@@ -274,16 +277,22 @@ function closeModal() {
 async function cancelBooking() {
     const driverUsernameInput = document.getElementById('cancel-driver-username');
     const driverUsername = driverUsernameInput ? driverUsernameInput.value.trim() : null;
-    console.log('Driver Username:', driverUsername);
+    console.log('Rider Username:', driverUsername)
     try {
         const riderUsername = localStorage.getItem('username');
-        console.log('Rider Username:', riderUsername);
         
-        if (!riderUsername || !driverUsername) {
+        // Validate inputs
+        if (!riderUsername) {
+            alert('Rider username not found. Please log in again.');
+            return;
+        }
+        
+        if (!driverUsername) {
             alert('Please enter a driver username');
             return;
         }
         
+        // Send request to backend to cancel booking
         const response = await fetch('/api/rider/cancel-booking/', {
             method: 'POST',
             headers: {
@@ -297,14 +306,15 @@ async function cancelBooking() {
         });
 
         const responseData = await response.json();
-        console.log("Full Response:", response);
-        console.log("Response Data:", responseData);
 
-        if (data.success) {
+        // Handle response
+        if (responseData.success) {
             alert('Booking cancelled successfully!');
             closeModal();
+            // Refresh bookings list
             fetchMyBookings();
         } else {
+            // Show error message from backend or a generic message
             alert(responseData.message || 'Cancellation failed');
         }
     } catch (error) {

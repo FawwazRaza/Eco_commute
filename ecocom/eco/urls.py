@@ -23,8 +23,7 @@ from backend.views import (
     search_rides, 
     book_ride, 
     rider_profile_view, 
-    rider_bookings_view, 
-    cancel_booking_view, 
+    rider_bookings_view,  
     logout_view,
     driver_profile_view,
     driver_bookings_view,
@@ -47,7 +46,7 @@ urlpatterns = [
     path('api/search-rides/', search_rides, name='search_rides'),
     path('api/book-ride/', book_ride, name='book_ride'),
     path('api/rider/profile/', rider_profile_view, name='rider_profile'),
-    path('api/cancel-booking/', cancel_booking_view, name='cancel_booking'),
+    # path('api/cancel-booking/', cancel_booking_view, name='cancel_booking'),
     path('api/logout/', logout_view, name='logout'),
 
     # Template paths for static pages
