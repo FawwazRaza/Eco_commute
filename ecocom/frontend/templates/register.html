@@ -18,7 +18,7 @@
             <h2>Register</h2>
             <div class="form-group">
                 <label for="user-type">User Type</label>
-                <select id="user-type" onchange="toggleDriverFields()">
+                <select id="user-type" name="user-type" onchange="toggleDriverFields()" required>
                     <option value="Rider">Rider</option>
                     <option value="Driver">Driver</option>
                 </select>
@@ -27,23 +27,23 @@
             <!-- Common Fields -->
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter your username" required>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
             </div>
             <div class="form-group">
                 <label for="name">Full Name</label>
-                <input type="text" id="name" placeholder="Enter your full name" required>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Enter your email" required>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
             </div>
             <div class="form-group">
                 <label for="phone">Phone</label>
-                <input type="tel" id="phone" placeholder="Enter your phone number" required>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Create a strong password" required>
+                <input type="password" id="password" name="password" placeholder="Create a strong password" required>
             </div>
 
             <!-- Driver Specific Fields -->
@@ -51,15 +51,15 @@
                 <h3>Driver Details</h3>
                 <div class="form-group">
                     <label for="car-model">Car Model</label>
-                    <input type="text" id="car-model" placeholder="Enter your car model">
+                    <input type="text" id="car-model" name="car-model" placeholder="Enter your car model">
                 </div>
                 <div class="form-group">
                     <label for="car-license">Car License</label>
-                    <input type="text" id="car-license" placeholder="Enter your car license number">
+                    <input type="text" id="car-license" name="car-license" placeholder="Enter your car license number">
                 </div>
                 <div class="form-group">
                     <label for="seats">Available Seats</label>
-                    <input type="number" id="seats" min="1" max="4" placeholder="Enter number of seats available">
+                    <input type="number" id="seats" name="seats" min="1" max="4" placeholder="Enter number of seats available">
                 </div>
             </div>
 
