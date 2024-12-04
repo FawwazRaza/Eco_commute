@@ -143,64 +143,7 @@ class DriverDatabase(DriverDatabaseInterface):
             return False
         
    
-    def deleteBooking(self, driver_username, rider_username):
-        try:
-            # Validate input
-            if not driver_username or not rider_username:
-                return {
-                    'success': False,
-                    'message': 'Both driver and rider usernames are required'
-                }
-
-            # Fetch Rider and Driver objects based on their usernames
-            try:
-                rider = Rider.objects.get(person__username=rider_username)
-                driver = Driver.objects.get(person__username=driver_username)
-            except Rider.DoesNotExist:
-                return {
-                    'success': False,
-                    'message': f'Rider with username {rider_username} not found'
-                }
-            except Driver.DoesNotExist:
-                return {
-                    'success': False,
-                    'message': f'Driver with username {driver_username} not found'
-                }
-
-            # Find the bookings associated with both the rider and the driver
-            bookings = Booking.objects.filter(driver=driver, riders=rider)
-
-            if bookings.exists():
-                # Additional validation: Check if cancellation is allowed close to ride time
-              
-
-                # Delete the booking
-                bookings.delete()
-                
-                # Increase available seats by 1 for the driver
-                driver.seats_available += 1
-                driver.save()
-
-                
-
-                return {
-                    'success': True,
-                    'message': 'Booking cancelled successfully'
-                }
-            else:
-                return {
-                    'success': False,
-                    'message': 'No booking found for the specified driver and rider'
-                }
-        
-        except Exception as e:
-            # Log the error for debugging
-            
-            return {
-                'success': False,
-                'message': 'An unexpected error occurred while cancelling the booking'
-            }
-
+    
     def storeRating(self, from_username, to_username, score, feedback=""):
         
         try:
@@ -480,64 +423,6 @@ class RiderDatabase(RiderDatabaseInterface):
             return False      
     
            
-    def searchRides(self, pickup_location=None, carMake = None, picktime = None):
-
-        try:
-            # Get available drivers based on filters
-            drivers = Driver.objects.all()
-
-            drivers = drivers.filter(seats_available__gt=0)
-       
-           
-            # Apply filter on pickup_location (must match drivers' route
-            if pickup_location:
-                filtered = []
-                for driver in drivers:
-                    for loc in driver.route:
-                        if pickup_location in loc.lower():
-                            filtered.append(driver)
-                drivers = filtered  
-
-            
-            if picktime:
-                filtered = []
-                for driver in drivers:
-                    if picktime == driver.timing:
-                        filtered.append(driver)
-                drivers = filtered  
-
-            if carMake:
-                filtered = []
-                for driver in drivers:
-                    if carMake.lower() == driver.car_model.lower():
-                        filtered.append(driver)
-                drivers = filtered 
-
-            available_drivers = []    
-
-            for driver in drivers:
-                # Fetch ratings for the driver (from the rider's perspective)
-                ratings = Rating.objects.filter(to_person=driver.person)  # Get ratings for the current driver
-                average_rating = ratings.aggregate(Avg('score'))['score__avg'] if ratings.exists() else None
-                
-
-            for driver in drivers:
-                driver_info = {
-                    'username': driver.person.username,
-                    'name': driver.person.name,
-                    'phone': driver.person.phone,
-                    'car_model': driver.car_model,
-                    'seats_available': driver.seats_available,
-                    'timing': driver.timing,  # Complete schedule of the driver
-                    'route': driver.route,  # Complete route of the driver
-                    'average_rating': average_rating,  # Average rating of the driver                    
-                }
-                available_drivers.append(driver_info)
-            
-            return available_drivers  # Return list of available drivers
-        except Exception as e:
-            print("Exception")
-            return []  # Return empty list if any error occurs
 
     def storeRating(self, from_username, to_username, score, feedback=""):
     
