@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Ride Sharing</title>
+    <title>Register - EcoCommute</title>
+    {% load static %}
+    <!-- Link to your CSS file -->
     <link rel="stylesheet" href="/static/css/register.css">
 </head>
 <body>
     <div class="register-container">
+        <header>
+            <h2>Welcome to EcoCommute</h2>
+            <p>Your trusted carpooling service for FAST University students. Join us to save costs, reduce emissions, and make commutes easier!</p>
+        </header>
         <form id="register-form">
             <h2>Register</h2>
             <div class="form-group">
-                <label>User Type</label>
+                <label for="user-type">User Type</label>
                 <select id="user-type" onchange="toggleDriverFields()">
                     <option value="Rider">Rider</option>
                     <option value="Driver">Driver</option>
@@ -21,38 +27,39 @@
             <!-- Common Fields -->
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" required>
+                <input type="text" id="username" placeholder="Enter your username" required>
             </div>
             <div class="form-group">
                 <label for="name">Full Name</label>
-                <input type="text" id="name" required>
+                <input type="text" id="name" placeholder="Enter your full name" required>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" required>
+                <input type="email" id="email" placeholder="Enter your email" required>
             </div>
             <div class="form-group">
                 <label for="phone">Phone</label>
-                <input type="tel" id="phone" required>
+                <input type="tel" id="phone" placeholder="Enter your phone number" required>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" placeholder="Create a strong password" required>
             </div>
 
             <!-- Driver Specific Fields -->
             <div id="driver-fields" style="display:none;">
+                <h3>Driver Details</h3>
                 <div class="form-group">
                     <label for="car-model">Car Model</label>
-                    <input type="text" id="car-model">
+                    <input type="text" id="car-model" placeholder="Enter your car model">
                 </div>
                 <div class="form-group">
                     <label for="car-license">Car License</label>
-                    <input type="text" id="car-license">
+                    <input type="text" id="car-license" placeholder="Enter your car license number">
                 </div>
                 <div class="form-group">
                     <label for="seats">Available Seats</label>
-                    <input type="number" id="seats" min="1" max="4">
+                    <input type="number" id="seats" min="1" max="4" placeholder="Enter number of seats available">
                 </div>
             </div>
 
@@ -60,6 +67,13 @@
             <p>Already have an account? <a href="/login">Login</a></p>
         </form>
     </div>
-    <script src="/static/js/register.js"></script>
+    <script>
+        // Script to toggle visibility of driver-specific fields
+        function toggleDriverFields() {
+            const userType = document.getElementById('user-type').value;
+            const driverFields = document.getElementById('driver-fields');
+            driverFields.style.display = userType === 'Driver' ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>

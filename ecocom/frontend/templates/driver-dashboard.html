@@ -6,7 +6,7 @@
     <title>Driver Dashboard - EcoCom</title>
     <link rel="stylesheet" href="/static/css/dashboard.css">
     <style>
-        /* Additional styles for rating stars */
+        /* Rating stars styles */
         .rating-stars {
             display: flex;
             justify-content: center;
@@ -24,21 +24,58 @@
         .rating-stars input:hover ~ label {
             color: #ffc107;
         }
-        .rating-modal {
+
+        /* Modal styles */
+        .modal-overlay {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
         }
-        .rating-actions {
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .modal-actions {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        /* Additional styles for buttons */
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -97,20 +134,12 @@
                 <!-- Bookings will be dynamically populated here -->
             </div>
         </section>
-        <section class="bookings-section">
-            <h2>Current Bookings</h2>
-            <div id="bookings-list" class="bookings-container">
-                <!-- Bookings will be dynamically populated here -->
-            </div>
-        </section>
-        
-        <section class="ratings-section">
-            <h2>Rider Ratings</h2>
-            <div id="rider-ratings-list">
-                <!-- Rider rating options will be dynamically populated here -->
-            </div>
-        </section>
     </div>
+
+    <!-- Modal Container for Cancellation and other dynamic content -->
+    <div id="modal-container"></div>
+    
+    <div id="rider-ratings-list"></div>
 
     <script src="/static/js/driver-dashboard.js"></script>
 </body>

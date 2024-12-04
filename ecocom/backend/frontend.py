@@ -58,15 +58,7 @@ class Rider(FrontendInterface):
 
    
     def collect_data(self):
-        # Collect data here (assumed that it's already collected)
-    #    return {
-    #        'username': "abc1",
-    #        'name': self.name,
-    #        'email': self.email,
-    #        'phone': self.phone,
-    #        'person_type': self.person_type,
-    #        'pickup_location': self.pickup_location }
-
+      
         return {
             'username': "abc1",
             'name': "John Doe",  # Placeholder name

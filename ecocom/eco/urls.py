@@ -47,7 +47,6 @@ urlpatterns = [
     path('api/search-rides/', search_rides, name='search_rides'),
     path('api/book-ride/', book_ride, name='book_ride'),
     path('api/rider/profile/', rider_profile_view, name='rider_profile'),
-    path('api/rider/bookings/', rider_bookings_view, name='rider_bookings'),
     path('api/cancel-booking/', cancel_booking_view, name='cancel_booking'),
     path('api/logout/', logout_view, name='logout'),
 
@@ -66,7 +65,7 @@ urlpatterns = [
     # API Endpoints for Driver Database Methods
     path('api/driver/profile/',        driver_profile_view, name='driver_profile'),
     path('api/driver/bookings/',       driver_bookings_view, name='driver_bookings'),
-    path('api/driver/cancel-booking/', cancel_booking_view, name='cancel_booking'),
+    # path('api/driver/cancel-booking/', cancel_booking_view, name='cancel_booking'),
     path('api/driver/update-profile/', update_driver_profile_view, name='update_driver_profile'),
 
     path('api/driver/cancel-booking/', driver_cancel_booking_view, name='driver_cancel_booking'),

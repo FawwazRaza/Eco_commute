@@ -42,7 +42,7 @@ async function fetchRiderProfile() {
 
         if (data.success) {
             const profile = data.profile;
-
+            // fetchMyBookings();
             // Update profile details
             document.getElementById('rider-username').textContent = profile.username || 'N/A';
             document.getElementById('rider-name').textContent = profile.name || 'N/A';
@@ -71,45 +71,88 @@ async function fetchRiderProfile() {
     }
 }
 
-// Fetch My Bookings
+
 async function fetchMyBookings() {
     try {
         const username = localStorage.getItem('username');
-        const response = await fetch(`/api/rider/bookings/?username=${username}`, {
+        
+        // Check if username exists
+        if (!username) {
+            throw new Error('No username found. Please log in.');
+        }
+
+        const response = await fetch(`/api/rider/bookings/?username=${encodeURIComponent(username)}`, {
             method: 'GET',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin' // Important for including cookies
         });
 
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        console.log('Bookings Data:', data);
+        console.log('Bookings Data rider:', data);
 
         const bookingsList = document.getElementById('bookings-list');
-        bookingsList.innerHTML = ''; // Clear previous results
+        bookingsList.innerHTML = ''; // Clear previous results only once
 
-        if (data.success && data.bookings && data.bookings.length > 0) {
-            data.bookings.forEach(booking => {
-                const bookingElement = document.createElement('div');
-                bookingElement.classList.add('booking-item');
-                bookingElement.innerHTML = `
+        // Modify the condition to check the new data structure
+        if (data.success && data.bookings) {
+            const booking = data.bookings; // Since it's a single object, not an array
+            const bookingElement = document.createElement('div');
+            bookingElement.classList.add('booking-item', 'card', 'mb-3');
+            bookingElement.innerHTML = `
+                <div class="card-header">
                     <h3>Booking with ${booking.driver_name}</h3>
-                    <p>Driver Username: ${booking.driver_username}</p>
-                    <p>Car Model: ${booking.car_model}</p>
-                    <p>Booking Time: ${booking.created_at}</p>
-                    <button onclick="cancelBooking(${booking.id})">Cancel Booking</button>
-                `;
-                bookingsList.appendChild(bookingElement);
-            });
+                </div>
+                <div class="card-body">
+                    <p><strong>Driver Username:</strong> ${booking.driver_username}</p>
+                    <p><strong>Driver Phone:</strong> ${booking.driver_phone}</p>
+                    <p><strong>Car:</strong> ${booking.car}</p>
+                    <p><strong>Route:</strong> ${formatRoute(booking.route)}</p>
+                    <button class="btn btn-danger" onclick="cancelBooking('${booking.driver_username}')">Cancel Booking</button>
+                </div>
+            `;
+            
+            bookingsList.appendChild(bookingElement);
         } else {
-            bookingsList.innerHTML = '<p>No bookings found</p>';
+            bookingsList.innerHTML = `
+                <div class="alert alert-info" role="alert">
+                    No bookings found. Would you like to book a ride?
+                </div>
+            `;
         }
     } catch (error) {
         console.error('Fetch bookings error:', error);
-        document.getElementById('bookings-list').innerHTML = '<p>Error fetching bookings</p>';
+        
+        const bookingsList = document.getElementById('bookings-list');
+        bookingsList.innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                ${error.message || 'Error fetching bookings. Please try again later.'}
+            </div>
+        `;
     }
 }
 
+// Utility function to format route (assuming route is an array)
+function formatRoute(route) {
+    // If route is an array, join its elements, otherwise return a default message
+    return route && route.length > 0 ? route.join(' → ') : 'No route information';
+}
+
+// Optional: Add a way to refresh bookings periodically
+function setupBookingsRefresh() {
+    fetchMyBookings(); // Initial fetch
+    setInterval(fetchMyBookings, 5 * 60 * 1000); // Refresh every 5 minutes
+}
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', setupBookingsRefresh);
 // Search Rides Function
 async function searchRides() {
     const pickupLocation = document.getElementById('pickup-location').value;
@@ -194,9 +237,53 @@ async function bookRide(driverUsername) {
     }
 }
 
-// Cancel Booking Function
-async function cancelBooking(bookingId) {
+
+// Function to open cancel booking modal
+function openCancelBookingModal() {
+    const modalContainer = document.getElementById('modal-container');
+    modalContainer.innerHTML = `
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Cancel Booking</h2>
+                    <button onclick="closeModal()">&times;</button>
+                </div>
+                <div>
+                    <input 
+                        type="text" 
+                        id="cancel-driver-username" 
+                        class="modal-input" 
+                        placeholder="Enter Driver Username"
+                    >
+                </div>
+                <div class="modal-actions">
+                    <button onclick="cancelBooking()" class="btn">Confirm Cancel</button>
+                    <button onclick="closeModal()" class="btn">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to close modal
+function closeModal() {
+    const modalContainer = document.getElementById('modal-container');
+    modalContainer.innerHTML = '';
+}
+
+async function cancelBooking() {
+    const driverUsernameInput = document.getElementById('cancel-driver-username');
+    const driverUsername = driverUsernameInput ? driverUsernameInput.value.trim() : null;
+    console.log('Driver Username:', driverUsername);
     try {
+        const riderUsername = localStorage.getItem('username');
+        console.log('Rider Username:', riderUsername);
+        
+        if (!riderUsername || !driverUsername) {
+            alert('Please enter a driver username');
+            return;
+        }
+        
         const response = await fetch('/api/rider/cancel-booking/', {
             method: 'POST',
             headers: {
@@ -204,24 +291,27 @@ async function cancelBooking(bookingId) {
                 'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify({ 
-                booking_id: bookingId 
+                rider_username: riderUsername,
+                driver_username: driverUsername 
             })
         });
-        const data = await response.json();
+
+        const responseData = await response.json();
+        console.log("Full Response:", response);
+        console.log("Response Data:", responseData);
+
         if (data.success) {
             alert('Booking cancelled successfully!');
-            // Refresh bookings list after cancellation
+            closeModal();
             fetchMyBookings();
         } else {
-            alert(data.message || 'Failed to cancel booking');
+            alert(responseData.message || 'Cancellation failed');
         }
     } catch (error) {
         console.error('Cancel booking error:', error);
         alert('An error occurred while cancelling the booking');
     }
 }
-
-// Logout Function
 async function logout() {
     try {
         const response = await fetch('/api/logout/', {
@@ -263,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Call the profile fetch function
     fetchRiderProfile();
-
+    // fetchMyBookings();
     // Add event listeners
     document.getElementById('search-rides-btn')?.addEventListener('click', searchRides);
     document.getElementById('fetch-bookings-btn')?.addEventListener('click', fetchMyBookings);

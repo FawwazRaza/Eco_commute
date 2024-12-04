@@ -85,61 +85,6 @@ function updateProfileUI(profile) {
 
     setElementText('profile-schedule', profile.schedule);
 }
-// Function to fetch driver bookings with detailed information
-// Function to fetch driver bookings with detailed information
-// async function fetchDriverBookings() {
-//     try {
-//         const username = localStorage.getItem('username');
-        
-//         if (!username) {
-//             console.error('No username found');
-//             window.location.href = '/login/';
-//             return;
-//         }
-
-//         const response = await fetch(`/api/driver/bookings/?username=${username}`, {
-//             method: 'GET',
-//             headers: {
-//                 'X-CSRFToken': getCookie('csrftoken'),
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-
-//         if (!response.ok) {
-//             throw new Error(`HTTP error! status: ${response.status}`);
-//         }
-
-//         const data = await response.json();
-//         console.log('Driver Bookings Data:', data);
-
-//         const bookingsList = document.getElementById('bookings-list');
-//         bookingsList.innerHTML = ''; // Clear previous results
-
-//         if (data.success && Array.isArray(data.bookings) && data.bookings.length > 0) {
-//             // Iterate through bookings and create UI elements
-//             data.bookings.forEach((booking, index) => {
-//                 const bookingElement = document.createElement('div');
-//                 bookingElement.classList.add('booking-item');
-//                 bookingElement.innerHTML = `
-//                     <div class="booking-details">
-//                         <h3>Rider Details (Booking #${index + 1})</h3>
-//                         <p><strong>Username:</strong> ${booking.rider_username || 'N/A'}</p>
-//                         <p><strong>Name:</strong> ${booking.rider_name || 'N/A'}</p>
-//                         <p><strong>Phone:</strong> ${booking.rider_phone || 'N/A'}</p>
-//                         <p><strong>Pickup Location:</strong> ${booking.rider_location || 'N/A'}</p>
-//                     </div>
-//                 `;
-//                 bookingsList.appendChild(bookingElement);
-//             });
-//         } else {
-//             bookingsList.innerHTML = '<p>No bookings found</p>';
-//         }
-//     } catch (error) {
-//         console.error('Fetch driver bookings error:', error);
-//         const bookingsList = document.getElementById('bookings-list');
-//         bookingsList.innerHTML = `<p>Error fetching bookings: ${error.message}</p>`;
-//     }
-// }
 
 async function fetchDriverBookings() {
     try {
@@ -169,22 +114,43 @@ async function fetchDriverBookings() {
         const bookingsList = document.getElementById('bookings-list');
         bookingsList.innerHTML = ''; // Clear previous results
 
-        if (data.success && Array.isArray(data.bookings) && data.bookings.length > 0) {
-            data.bookings.forEach((booking, index) => {
-                const bookingCard = document.createElement('div');
-                bookingCard.classList.add('booking-card');
-                bookingCard.innerHTML = `
-                    <div class="booking-header">
-                        <h3>Booking #${index + 1}</h3>
-                    </div>
-                    <div class="booking-details">
-                        <p><strong>Rider Username:</strong> ${booking.rider_username || 'N/A'}</p>
-                        <p><strong>Name:</strong> ${booking.rider_name || 'N/A'}</p>
-                        <p><strong>Phone:</strong> ${booking.rider_phone || 'N/A'}</p>
-                        <p><strong>Pickup Location:</strong> ${booking.rider_location || 'N/A'}</p>
-                    </div>
-                `;
-                bookingsList.appendChild(bookingCard);
+        if (data.success && data.bookings && data.bookings.length > 0) {
+            const uniqueBookings = new Set(); // Use Set to prevent duplicates
+            data.bookings.forEach(booking => {
+                // Store rider details in sessionStorage
+                sessionStorage.setItem(
+                    `rider_${booking.id}`, 
+                    JSON.stringify({
+                        username: booking.rider_username,
+                        name: booking.rider_name,
+                        phone: booking.rider_phone,
+                        location: booking.rider_location
+                    })
+                );
+
+                // Check if booking is already added
+                if (!uniqueBookings.has(booking.id)) {
+                    uniqueBookings.add(booking.id);
+                    const bookingElement = document.createElement('div');
+                    bookingElement.classList.add('booking-item');
+                    bookingElement.innerHTML = `
+                        <div class="booking-details">
+                            <h3>Booking with ${booking.rider_name}</h3>
+                            <div class="rider-info">
+                                <h4>Rider Details</h4>
+                                <p><strong>Username:</strong> ${booking.rider_username}</p>
+                                <p><strong>Name:</strong> ${booking.rider_name}</p>
+                                <p><strong>Phone:</strong> ${booking.rider_phone}</p>
+                                <p><strong>Pickup Location:</strong> ${booking.rider_location}</p>
+                            </div>
+                            <div class="booking-actions">
+                                <button onclick="openCancelBookingModal()">Cancel Booking</button>
+                                <button onclick="rateRider('${booking.rider_username}')">Rate Rider</button>
+                            </div>
+                        </div>
+                    `;
+                    bookingsList.appendChild(bookingElement);
+                }
             });
         } else {
             bookingsList.innerHTML = '<p>No bookings found</p>';
@@ -192,11 +158,10 @@ async function fetchDriverBookings() {
     } catch (error) {
         console.error('Fetch driver bookings error:', error);
         const bookingsList = document.getElementById('bookings-list');
-        bookingsList.innerHTML = `<p>Error fetching bookings: ${error.message}</p>`;
+        bookingsList.innerHTML = '<p>Error fetching bookings</p>';
     }
 }
 
-// Function to fetch rider details
 async function fetchRiderDetails(username) {
     try {
         const response = await fetch(`/api/rider/profile/?username=${username}`, {
@@ -240,24 +205,38 @@ async function fetchRiderDetails(username) {
         };
     }
 }
-
-// Function to cancel a booking
-async function cancelBooking(bookingId) {
+// Updated cancelBooking function to handle manual username input
+async function cancelBooking() {
+    const riderUsernameInput = document.getElementById('cancel-rider-username');
+    const riderUsername = riderUsernameInput ? riderUsernameInput.value.trim() : null;
+    console.log('Rider Username:', riderUsername);
     try {
+        const driverUsername = localStorage.getItem('username');
+        console.log('Driver Username:', driverUsername);
+        // Validate usernames
+        if (!driverUsername || !riderUsername) {
+            alert('Please enter a rider username');
+            return;
+        }
+        
         const response = await fetch('/api/driver/cancel-booking/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({ booking_id: bookingId })
+            body: JSON.stringify({ 
+                rider_username: riderUsername,
+                driver_username: driverUsername 
+            })
         });
 
         const data = await response.json();
-        console.log('Cancel Booking Response:', data);
 
         if (data.success) {
             alert('Booking cancelled successfully!');
+            // Close the modal
+            closeModal();
             // Refresh bookings list
             fetchDriverBookings();
         } else {
@@ -266,6 +245,68 @@ async function cancelBooking(bookingId) {
     } catch (error) {
         console.error('Cancel booking error:', error);
         alert('An error occurred while cancelling the booking');
+    }
+}
+
+// Function to open cancel booking modal
+function openCancelBookingModal() {
+    const modalContainer = document.getElementById('modal-container');
+    modalContainer.innerHTML = `
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Cancel Booking</h2>
+                    <button onclick="closeModal()">&times;</button>
+                </div>
+                <div>
+                    <input 
+                        type="text" 
+                        id="cancel-rider-username" 
+                        class="modal-input" 
+                        placeholder="Enter Rider Username"
+                    >
+                </div>
+                <div class="modal-actions">
+                    <button onclick="cancelBooking()" class="btn">Confirm Cancel</button>
+                    <button onclick="closeModal()" class="btn">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to close modal
+function closeModal() {
+    const modalContainer = document.getElementById('modal-container');
+    modalContainer.innerHTML = '';
+}
+
+
+function renderBookings(bookings) {
+    const bookingsList = document.getElementById('bookings-list');
+    bookingsList.innerHTML = ''; // Clear previous results
+
+    if (bookings && bookings.length > 0) {
+        bookings.forEach(booking => {
+            const bookingElement = document.createElement('div');
+            bookingElement.classList.add('booking-item');
+            bookingElement.innerHTML = `
+                <div class="booking-details">
+                    <h3>Booking with ${booking.rider_name}</h3>
+                    <div class="rider-info">
+                        <h4>Rider Details</h4>
+                        <p><strong>Username:</strong> ${booking.rider_username}</p>
+                        <p><strong>Name:</strong> ${booking.rider_name}</p>
+                        <button onclick="cancelBooking('${booking.rider_username}', '${localStorage.getItem('username')}')">
+                            Cancel Booking
+                        </button>
+                    </div>
+                </div>
+            `;
+            bookingsList.appendChild(bookingElement);
+        });
+    } else {
+        bookingsList.innerHTML = '<p>No bookings found</p>';
     }
 }
 

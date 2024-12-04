@@ -11,6 +11,10 @@ from django.contrib.auth import logout
 from .models import Person, Rider, Driver, Booking, Rating
 from .database import DriverDatabase, RiderDatabase
 
+from django.utils import timezone
+from datetime import timedelta
+
+
 # Setup logger
 logger = logging.getLogger(__name__)
 
@@ -84,9 +88,6 @@ def logout_view(request):
             'message': str(e)
         })
     
-
-
-
 @csrf_exempt
 def register_view(request):
     if request.method == 'POST':
@@ -238,34 +239,20 @@ def rider_profile_view(request):
 def rider_bookings_view(request):
     try:
         username = request.GET.get('username')
+        r = RiderDatabase()  # Ensure that r is an instance of RiderDatabase
+        # Fetch rider's bookings
+        bookings_data = r.getBookings(username)
         
-        # Use RiderDatabase to fetch bookings
-        rider_db = RiderDatabase()
-        
-        # Fetch bookings
-        bookings = rider_db.getBookings(username)
-        
-        # If no bookings found or error occurred
-        if bookings is None:
+        # Check if bookings were found
+        if bookings_data is None:
             return JsonResponse({
                 'success': False,
                 'message': 'No bookings found'
             })
         
-        # Convert bookings to a list of dictionaries
-        booking_list = []
-        for booking in bookings:
-            booking_list.append({
-                'id': booking.id,
-                'driver_name': booking.driver.person.name,
-                'driver_username': booking.driver.person.username,
-                'car_model': booking.driver.car_model,
-                'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-            })
-        
         return JsonResponse({
             'success': True,
-            'bookings': booking_list
+            'bookings': bookings_data
         })
     except Exception as e:
         return JsonResponse({
@@ -316,39 +303,6 @@ def book_ride_view(request):
             'message': str(e)
         })
 
-@csrf_protect
-@require_http_methods(["POST"])
-def cancel_booking_view(request):
-    try:
-        data = json.loads(request.body)
-        booking_id = data.get('booking_id')
-        
-        try:
-            # Fetch and delete booking
-            booking = Booking.objects.get(id=booking_id)
-            driver = booking.driver
-            
-            # Increase available seats
-            driver.seats_available += 1
-            driver.save()
-            
-            # Remove rider from booking
-            booking.delete()
-            
-            return JsonResponse({
-                'success': True, 
-                'message': 'Booking cancelled successfully'
-            })
-        except Booking.DoesNotExist:
-            return JsonResponse({
-                'success': False, 
-                'message': 'Booking not found'
-            })
-    except Exception as e:
-        return JsonResponse({
-            'success': False, 
-            'message': str(e)
-        })
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -422,265 +376,53 @@ def driver_profile_view(request):
             'success': False,
             'message': str(e)
         })
-    
-# def driver_bookings_view(request):
-#     """
-#     Fetch driver's current bookings with multiple identifier support
-#     """
-#     try:
-#         # Try to get username, if not present try name
-#         username = request.GET.get('username')
-#         name = request.GET.get('name')
-        
-#         # Use username if available, otherwise use name
-#         identifier = username or name
-        
-#         if not identifier:
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Username or name is required'
-#             }, status=400)
-        
-#         # Initialize DriverDatabase
-#         driver_db = DriverDatabase()
-        
-#         # Fetch bookings using flexible identifier
-#         bookings = driver_db.getBookings(username)
-        
-#         # Convert bookings to a list of dictionaries
-#         booking_list = []
-#         for booking in bookings:
-#             # Ensure we have at least one rider
-#             if booking.riders.exists():
-#                 rider = booking.riders.first()
-#                 booking_list.append({
-#                     'id': booking.id,
-#                     'rider_name': rider.person.name,
-#                     'rider_username': rider.person.username,
-#                     'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-#                 })
-        
-#         # Return bookings or indicate no bookings found
-#         return JsonResponse({
-#             'success': True,
-#             'bookings': booking_list
-#         })
-#     except Exception as e:
-#         return JsonResponse({
-#             'success': False,
-#             'message': str(e)
-#         })
 
-# def driver_bookings_view(request):
-#     """
-#     Fetch driver's current bookings with multiple identifier support
-#     """
-#     try:
-#         # Try to get username, if not present try name
-#         username = request.GET.get('username')
-#         name = request.GET.get('name')
-        
-#         # Use username if available, otherwise use name
-#         identifier = username or name
-        
-#         if not identifier:
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Username or name is required'
-#             }, status=400)
-        
-#         # Initialize DriverDatabase
-#         driver_db = DriverDatabase()
-        
-#         # Fetch bookings using flexible identifier
-#         bookings = driver_db.getBookings(identifier)  # Changed from 'username' to 'identifier'
-        
-#         # Convert QuerySet to a list of dictionaries
-#         booking_list = []
-#         for booking in bookings:  # Directly iterate over QuerySet
-#             # Ensure we have at least one rider
-#             if booking.riders.exists():
-#                 rider = booking.riders.first()
-#                 booking_list.append({
-#                     'id': booking.id,
-#                     'rider_name': rider.person.name,
-#                     'rider_username': rider.person.username,
-#                     'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-#                 })
-        
-#         # Return bookings or indicate no bookings found
-#         return JsonResponse({
-#             'success': True,
-#             'bookings': booking_list
-#         })
-#     except Exception as e:
-#         return JsonResponse({
-#             'success': False,
-#             'message': str(e)
-#         }, status=500)
 
-# @csrf_protect
-# @require_http_methods(["GET"])
-# def driver_bookings_view(request):
-#     """
-#     Fetch driver's current bookings with detailed rider information
-#     """
-#     try:
-#         username = request.GET.get('username')
-        
-#         if not username:
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Username is required'
-#             }, status=400)
-        
-#         # Initialize DriverDatabase
-#         driver_db = DriverDatabase()
-        
-#         # Fetch bookings using the getBookings method
-#         bookings = driver_db.getBookings(username)
-        
-#         # Convert bookings to a list of dictionaries with detailed information
-#         booking_list = []
-#         # for booking in bookings:
-#         #     # Fetch rider details for each booking
-#         #     rider = booking.riders.first()  # Assuming one rider per booking
-            
-#         #     booking_info = {
-#         #         'id': booking.id,
-#         #         'driver_username': booking.driver.person.username,
-#         #         'driver_name': booking.driver.person.name,
-#         #         'rider_username': rider.person.username,
-#         #         'rider_name': rider.person.name,
-#         #         'rider_email': rider.person.email,
-#         #         'rider_phone': rider.person.phone,
-#         #         'rider_pickup_location': rider.pickup_location,
-#         #         'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-#         #     }
-#         #     booking_list.append(booking_info)
-#         for booking in bookings:
-#             rider = booking.riders.first()  # Ensure rider exists
-#             if rider:
-#                 booking_info = {
-#                     'id': booking.id,
-#                     'driver_username': booking.driver.person.username,
-#                     'driver_name': booking.driver.person.name,
-#                     'rider_username': rider.person.username,
-#                     'rider_name': rider.person.name,
-#                     'rider_details': {
-#                         'name': rider.person.name,
-#                         'email': rider.person.email,
-#                         'phone': rider.person.phone,
-#                         'pickup_location': rider.pickup_location,
-#                     },
-#                     'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-#                 }
-#                 booking_list.append(booking_info)
-
-#         return JsonResponse({
-#             'success': True,
-#             'bookings': booking_list
-#         })
-    
-#     except Exception as e:
-#         return JsonResponse({
-#             'success': False,
-#             'message': str(e)
-#         }, status=500)
-
-# @csrf_protect
-# @require_http_methods(["GET"])
-# def driver_bookings_view(request):
-#     """
-#     Fetch driver's current bookings with detailed rider information
-#     """
-#     try:
-#         username = request.GET.get('username')
-        
-#         if not username:
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Username is required'
-#             }, status=400)
-        
-#         # Fetch the driver
-#         try:
-#             driver = Driver.objects.get(person__username=username)
-#         except Driver.DoesNotExist:
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Driver not found'
-#             }, status=404)
-        
-#         # Fetch bookings for this driver
-#         bookings = Booking.objects.filter(driver=driver)
-        
-#         # Convert bookings to a list of dictionaries
-#         booking_list = []
-#         for booking in bookings:
-#             # Get the first rider (assuming one rider per booking)
-#             riders = booking.riders.all()
-#             if riders.exists():
-#                 rider = riders.first()
-#                 booking_info = {
-#                     'id': booking.id,
-#                     'rider_username': rider.person.username,
-#                     'rider_name': rider.person.name,
-#                     'rider_email': rider.person.email,
-#                     'rider_phone': rider.person.phone,
-#                     'rider_pickup_location': getattr(rider, 'pickup_location', 'N/A'),
-#                     'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-#                 }
-#                 booking_list.append(booking_info)
-        
-#         return JsonResponse({
-#             'success': True,
-#             'bookings': booking_list
-#         })
-    
-#     except Exception as e:
-#         import traceback
-#         traceback.print_exc()
-#         return JsonResponse({
-#             'success': False,
-#             'message': str(e)
-#         }, status=500)
-
-@csrf_protect
-@require_http_methods(["GET"])
 def driver_bookings_view(request):
     """
-    Fetch driver's current bookings with detailed rider information.
+    Fetch driver's current bookings with detailed rider information and rating
     """
     try:
         username = request.GET.get('username')
-
+        
         if not username:
             return JsonResponse({
                 'success': False,
                 'message': 'Username is required'
             }, status=400)
-
-        # Utilize the `getBookings` method to fetch rider data
-        driver = Driver.objects.get(person__username=username)
-        riders_data = driver.getBookings(username)
-
-        if riders_data is None:
-            return JsonResponse({
-                'success': False,
-                'message': 'No bookings found for the specified driver'
-            }, status=404)
-
+        
+        # Initialize databases
+        driver_db = DriverDatabase()
+        rider_db = RiderDatabase()
+        
+        # Fetch bookings for this driver
+        bookings = driver_db.getBookings(username)
+        
+        # Convert bookings to a list of dictionaries
+        booking_list = []
+        for booking in bookings:
+            # Get the first rider (assuming one rider per booking)
+            try:
+                # Fetch rider rating
+                rider_rating = rider_db.getRating(booking['rider_username'])
+                
+                booking_info = {
+                    'id': booking.get('id', 'N/A'),
+                    'rider_username': booking['rider_username'],
+                    'rider_name': booking['rider_name'],
+                    'rider_phone': booking['rider_phone'],
+                    'rider_location': booking['rider_location'],
+                    'rider_rating': round(rider_rating, 2) if rider_rating is not None else '0'
+                }
+                booking_list.append(booking_info)
+            except Exception as e:
+                print(f"Error processing booking: {e}")
+        
         return JsonResponse({
             'success': True,
-            'bookings': riders_data
+            'bookings': booking_list
         })
-
-    except Driver.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'message': 'Driver not found'
-        }, status=404)
+    
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -778,37 +520,6 @@ def driver_bookings_view(request):
             'message': str(e)
         })
 
-@csrf_exempt
-def driver_cancel_booking_view(request):
-    """
-    Cancel a specific booking
-    """
-    try:
-        # Parse booking ID from request
-        data = json.loads(request.body)
-        booking_id = data.get('booking_id')
-        
-        # Initialize DriverDatabase
-        driver_db = DriverDatabase()
-        
-        # Delete booking
-        result = driver_db.deleteBooking(booking_id)
-        
-        if result:
-            return JsonResponse({
-                'success': True,
-                'message': 'Booking cancelled successfully'
-            })
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Failed to cancel booking'
-            })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        })
 
 def driver_rate_rider_view(request):
     """
@@ -841,74 +552,6 @@ def driver_rate_rider_view(request):
             'message': str(e)
         })
 
-def rider_bookings_view(request):
-    """
-    Fetch rider's current bookings
-    """
-    try:
-        username = request.GET.get('username')
-        rider_db = RiderDatabase()
-        
-        bookings = rider_db.getBookings(username)
-        
-        # Convert bookings to a list of dictionaries
-        booking_list = []
-        for booking in bookings:
-            booking_list.append({
-                'id': booking.id,
-                'driver_name': booking.driver.person.name,
-                'driver_username': booking.driver.person.username,
-                'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S")
-            })
-        
-        return JsonResponse({
-            'success': True,
-            'bookings': booking_list
-        })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        })
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def rider_cancel_booking_view(request):
-    """
-    Cancel a specific booking for a rider
-    """
-    try:
-        # Parse booking ID from request body
-        data = json.loads(request.body)
-        booking_id = data.get('booking_id')
-        
-        if not booking_id:
-            return JsonResponse({
-                'success': False,
-                'message': 'Booking ID is required'
-            }, status=400)
-        
-        # Initialize RiderDatabase
-        rider_db = RiderDatabase()
-        
-        # Delete specific booking
-        result = rider_db.deleteBooking(booking_id)
-        
-        if result:
-            return JsonResponse({
-                'success': True,
-                'message': 'Booking cancelled successfully'
-            })
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Failed to cancel booking'
-            })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        })
 
 
 @csrf_exempt
@@ -971,6 +614,8 @@ def rider_location_view(request):
         })
 
 def rider_rating_view(request):
+
+
     """
     Get rider's rating
     """
@@ -988,4 +633,72 @@ def rider_rating_view(request):
         return JsonResponse({
             'success': False,
             'message': str(e)
+        })
+
+
+def driver_cancel_booking_view(request):
+    try:
+        print(request.body)
+        data = json.loads(request.body)
+        rider_username = data.get('rider_username')
+        driver_username = data.get('driver_username')
+        print(rider_username)
+        print(driver_username)
+        # Input validation
+        if not rider_username or not driver_username:
+            return JsonResponse({
+                'success': False,
+                'message': 'Both rider and driver usernames are required'
+            }, status=400)
+        
+        driver_db = DriverDatabase()
+        
+        # Cancel booking and get detailed result
+        result = driver_db.deleteBooking(driver_username, rider_username)
+        print(result)
+        return JsonResponse(result, status=200 if result['success'] else 400)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data'
+        }, status=400)
+    
+    except Exception as e:
+        # Return error message without logging
+        return JsonResponse({
+            'success': False,
+            'message': 'An unexpected error occurred'
+        }, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def rider_cancel_booking_view(request):
+    try:
+        data = json.loads(request.body)
+        rider_username = data.get('rider_username')
+        driver_username = data.get('driver_username')
+        
+        print(f"Attempting to cancel booking - Rider: {rider_username}, Driver: {driver_username}")
+        
+        rider_db = RiderDatabase()
+        
+        result = rider_db.deleteBooking(driver_username, rider_username)
+        
+        if result:
+            return JsonResponse({
+                'success': True,
+                'message': 'Booking cancelled successfully'
+            })
+        else:
+            print(f"Failed to cancel booking for Rider: {rider_username}, Driver: {driver_username}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Failed to cancel booking. No matching booking found.'
+            })
+    except Exception as e:
+        print(f"Exception in booking cancellation: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
         })
