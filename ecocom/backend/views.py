@@ -11,6 +11,8 @@ from django.contrib.auth import logout
 from .models import Person, Rider, Driver, Booking, Rating
 from .database import DriverDatabase, RiderDatabase
 
+from django.views.decorators.csrf import csrf_exempt
+
 from django.utils import timezone
 from datetime import timedelta
 
@@ -88,7 +90,86 @@ def logout_view(request):
             'message': str(e)
         })
     
-@csrf_protect
+# @csrf_protect
+# def register_view(request):
+#     if request.method == 'POST':
+#         try:
+#             # Parse the JSON data from the request body
+#             data = json.loads(request.body)
+            
+#             # Validate required fields
+#             required_fields = ['username', 'name', 'email', 'phone', 'password', 'person_type']
+#             for field in required_fields:
+#                 if field not in data:
+#                     return JsonResponse({
+#                         'success': False, 
+#                         'message': f'Missing required field: {field}'
+#                     }, status=400)
+            
+#             # Create Person object
+#             person = Person(
+#                 username=data['username'],
+#                 name=data['name'],
+#                 email=data['email'],
+#                 phone=data['phone'],
+#                 password=data['password'],
+#                 person_type=data['person_type']
+#             )
+            
+#             # Validate and save Person
+#             person.full_clean()
+#             person.save()
+            
+#             # Create additional profile based on person type
+#             if data['person_type'] == 'Driver':
+#                 # Validate driver-specific fields
+#                 driver_fields = ['car_model', 'car_license', 'seats_available']
+#                 for field in driver_fields:
+#                     if field not in data:
+#                         # Rollback person creation if driver fields are missing
+#                         person.delete()
+#                         return JsonResponse({
+#                             'success': False, 
+#                             'message': f'Missing driver field: {field}'
+#                         }, status=400)
+                
+#                 # Create Driver profile
+#                 driver = Driver(
+#                     person=person,
+#                     car_model=data['car_model'],
+#                     car_license=data['car_license'],
+#                     seats_available=data['seats_available'],
+#                     route=data.get('route', []),
+#                     timing=data.get('timing', '')
+#                 )
+#                 driver.save()
+            
+#             elif data['person_type'] == 'Rider':
+#                 # Create Rider profile
+#                 rider = Rider(
+#                     person=person,
+#                     pickup_location=data.get('pickup_location', '')
+#                 )
+#                 rider.save()
+            
+#             return JsonResponse({
+#                 'success': True, 
+#                 'message': 'Registration successful'
+#             })
+        
+#         except Exception as e:
+#             # Comprehensive error handling
+#             return JsonResponse({
+#                 'success': False, 
+#                 'message': str(e)
+#             }, status=500)
+    
+#     # Handle non-POST requests
+#     return JsonResponse({
+#         'success': False, 
+#         'message': 'Invalid request method'
+#     }, status=405)
+@csrf_exempt
 def register_view(request):
     if request.method == 'POST':
         try:
@@ -167,7 +248,6 @@ def register_view(request):
         'success': False, 
         'message': 'Invalid request method'
     }, status=405)
-
 
 
 @csrf_protect
