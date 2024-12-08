@@ -29,7 +29,7 @@ Follow these steps to set up the project locally:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/EcoCommute.git
+   git clone https://github.com/FawwazRaza/Eco_commute.git
    cd ecocom
    ```
 2. **Install dependencies**:
