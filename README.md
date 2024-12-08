@@ -30,9 +30,22 @@ Follow these steps to set up the project locally:
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/your-username/EcoCommute.git
-   cd EcoCommute
+   cd ecocom
    ```
 2. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
+3.**Run migrations**:
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+4.**Start the development server**:
+```bash
+python manage.py runserver
+```
+## 👥 Contributors
+
+-Fawwaz Raza 
+-Faraz Ul Khaf 
