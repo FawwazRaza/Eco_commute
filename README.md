@@ -31,3 +31,8 @@ Follow these steps to set up the project locally:
    ```bash
    git clone https://github.com/your-username/EcoCommute.git
    cd EcoCommute
+   ```
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
