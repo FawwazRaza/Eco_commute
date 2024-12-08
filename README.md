@@ -41,8 +41,8 @@ EcoCommute is a web-based carpooling platform designed specifically for universi
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/EcoCommute.git
-2.Create virtual environment
+git clone https://github.com/yourusername/EcoCommute.git```
+
+2. Install dependencies
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+pip install -r requirements.txt```
