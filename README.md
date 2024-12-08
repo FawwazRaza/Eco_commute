@@ -39,10 +39,10 @@ EcoCommute is a web-based carpooling platform designed specifically for universi
 
 ### Installation
 
-1. Clone the repository
+##1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/EcoCommute.git```
 
-2. Install dependencies
+##2. Install dependencies
 ```bash
-pip install -r requirements.txt```
+pip install -r requirements.txt
