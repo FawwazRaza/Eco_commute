@@ -1,48 +1,33 @@
-# EcoCommute: Sustainable Carpooling Solution
+# EcoCommute 🚗🌍
 
-## 🚗 Project Overview
+**EcoCommute** is a sustainable carpooling solution designed to address transportation challenges in university communities. This platform helps reduce parking space requirements, traffic congestion, and carbon emissions while fostering community connections and providing cost-effective transportation options.
 
-EcoCommute is a web-based carpooling platform designed specifically for university communities, aimed at reducing traffic congestion, lowering carbon emissions, and creating meaningful connections among students and staff.
+---
 
-## 🌍 Key Objectives
+## 🌟 Features
 
-- 🅿️ Reduce campus parking space requirements
-- 🚦 Decrease traffic congestion
-- 🌱 Lower carbon emissions
-- 🤝 Foster university community connections
-- 💰 Provide cost-effective transportation options
+- **Driver Profiles**: Drivers can create profiles, add car details, and specify routes and schedules.
+- **Rider Profiles**: Riders can create profiles, set their locations, and define scheduling preferences.
+- **Search Rides**: Riders can search for available rides based on location and schedules.
+- **Book/Offer Rides**: Users can request rides, confirm bookings, and manage availability.
+- **Reward System**: A point-based system rewards users for regular carpooling.
+- **Safety Options**: Gender-specific ride options ensure a safer experience.
+
+---
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: HTML, CSS, JavaScript
 - **Backend**: Django (Python)
 - **Database**: SQLite3
-- **Version Control**: Git
 
-## ✨ Features
+---
 
-- User-friendly driver and rider profiles
-- Ride matching and booking system
-- Route optimization
-- Flexible ride scheduling
-- Gender-specific ride options
-- Community rating system
-- Points-based reward program
+## 🚀 Installation
 
-## 🚀 Getting Started
+Follow these steps to set up the project locally:
 
-### Prerequisites
-
-- Python 3.8+
-- Django
-- Git
-
-### Installation
-
-##1. Clone the repository
-```bash
-git clone https://github.com/yourusername/EcoCommute.git```
-
-##2. Install dependencies
-```bash
-pip install -r requirements.txt
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/EcoCommute.git
+   cd EcoCommute
