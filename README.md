@@ -43,5 +43,6 @@ EcoCommute is a web-based carpooling platform designed specifically for universi
 ```bash
 git clone https://github.com/yourusername/EcoCommute.git
 2.Create virtual environment
+```bash
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
